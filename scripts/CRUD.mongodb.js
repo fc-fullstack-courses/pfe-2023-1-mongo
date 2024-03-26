@@ -106,44 +106,106 @@ db.inventory.find({
 });
 
 // SELECT * FROM inventory WHERE qty >= 50 AND status = 'D'
-// v1 
+// v1
 db.inventory.find({
   qty: { $gte: 50 },
-  status : 'D'
+  status: 'D',
 });
 
 // v2
 db.inventory.find({
-  $and: [ {status: 'D'}, {qty: { $gte: 50 }} ]
+  $and: [{ status: 'D' }, { qty: { $gte: 50 } }],
 });
 
 // SELECT * FROM inventory WHERE qty >= 50 OR status = 'D'
 db.inventory.find({
-  $or: [{qty: {$gte: 50}}, {status: 'D'}]
+  $or: [{ qty: { $gte: 50 } }, { status: 'D' }],
 });
 
 // SELECT * FROM inventory WHERE qty >= 50 OR (status = 'D' AND item = 'journal')
 db.inventory.find({
-  $or: [{qty: {$gte: 50}}, {status: 'D', item: 'journal' }]
+  $or: [{ qty: { $gte: 50 } }, { status: 'D', item: 'journal' }],
 });
 
 // звертання до властивостей об'єкта
 // SELECT * FROM inventory FROM size.uom = 'cm';
 db.inventory.find({
-  "size.uom": 'cm'
+  'size.uom': 'cm',
 });
 
 // всі записи у яких існує певне поле
 // всі користувачі з полем email
 db.users.find({
-  email: { $exists: true }
+  email: { $exists: true },
 });
+
+db.inventory.insertMany([
+  {
+    item: 'canvas',
+    qty: 100,
+    size: { h: 28, w: 35.5, uom: 'cm' },
+    status: 'A',
+  },
+  { item: 'journal', qty: 25, size: { h: 14, w: 21, uom: 'cm' }, status: 'A' },
+  { item: 'mat', qty: 85, size: { h: 27.9, w: 35.5, uom: 'cm' }, status: 'A' },
+  {
+    item: 'mousepad',
+    qty: 25,
+    size: { h: 19, w: 22.85, uom: 'cm' },
+    status: 'P',
+  },
+  {
+    item: 'notebook',
+    qty: 50,
+    size: { h: 8.5, w: 11, uom: 'in' },
+    status: 'P',
+  },
+  { item: 'paper', qty: 100, size: { h: 8.5, w: 11, uom: 'in' }, status: 'D' },
+  {
+    item: 'planner',
+    qty: 75,
+    size: { h: 22.85, w: 30, uom: 'cm' },
+    status: 'D',
+  },
+  {
+    item: 'postcard',
+    qty: 45,
+    size: { h: 10, w: 15.25, uom: 'cm' },
+    status: 'A',
+  },
+  {
+    item: 'sketchbook',
+    qty: 80,
+    size: { h: 14, w: 21, uom: 'cm' },
+    status: 'A',
+  },
+  {
+    item: 'sketch pad',
+    qty: 95,
+    size: { h: 22.85, w: 30.5, uom: 'cm' },
+    status: 'A',
+  },
+]);
+
+// Update - оновити записи
+
+// один запис
+db.inventory.updateOne({ status: 'A' },{ $set: { status: 'Accepted', 'size.uom': 'cm' } });
+
+// багато записів
+// UPDATE inventory set status = 'Accepted', uom = 'cm' WHERE status = 'A';
+db.inventory.updateMany(
+  { status: 'A' },
+  { $set: { status: 'Accepted', 'size.uom': 'cm' } }
+);
+
+db.inventory.find();
 
 // Delete - видалити записи
 
 // один запис
 db.users.deleteOne({
-  _id: new ObjectId('6602ff2fe65e936d9c05ed56')
+  _id: new ObjectId('6602ff2fe65e936d9c05ed56'),
 });
 
 // багато записів
@@ -151,7 +213,7 @@ db.users.deleteOne({
 db.inventory.deleteMany({});
 
 // видалит всіх без емейлів
-db.users.deleteMany({email: {$exists: false}});
+db.users.deleteMany({ email: { $exists: false } });
 
 // видалити коллекцію з усіма записами
 // DROP TABLE inventory
