@@ -139,6 +139,18 @@ db.users.find({
   email: { $exists: true },
 });
 
+// SELECT _id, item, status FROM inventory;
+// 1 - поле треба додати
+// 0 - поле треба виключити
+// 1 і 0 можуть комбінуватися у проекції тільки якщо ви прибираєте _id
+db.inventory.find({}, { item: 1, status: 1 });
+
+// SELECT item, status FROM inventory;
+db.inventory.find({}, { item: 1, status: 1, _id: 0 });
+
+// SELECT всі поля окрім status FROM inventory;
+db.inventory.find({}, { status: 0 });
+
 db.inventory.insertMany([
   {
     item: 'canvas',
@@ -190,7 +202,10 @@ db.inventory.insertMany([
 // Update - оновити записи
 
 // один запис
-db.inventory.updateOne({ status: 'A' },{ $set: { status: 'Accepted', 'size.uom': 'cm' } });
+db.inventory.updateOne(
+  { status: 'A' },
+  { $set: { status: 'Accepted', 'size.uom': 'cm' } }
+);
 
 // багато записів
 // UPDATE inventory set status = 'Accepted', uom = 'cm' WHERE status = 'A';
