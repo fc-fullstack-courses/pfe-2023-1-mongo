@@ -223,3 +223,67 @@ db.phones.insertOne({
   price: -123545,
   isUsed: false
 });
+
+db.runCommand({
+  collMod: 'phones',
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['name', 'price', 'isUsed'],
+      properties: {
+        name: {
+          bsonType: 'string',
+          description: 'name must be string'
+        },
+        price: {
+          bsonType: 'number',
+          description: 'price must be positive number',
+          minimum: 0
+        },
+        color: {
+          bsonType: 'string'
+        },
+        isUsed : {
+          bsonType: 'bool'
+        },
+        dimensions: {
+          bsonType: 'object',
+          required: ['height', 'width', 'thickness'],
+          properties: {
+            height: {
+              bsonType: 'number'
+            },
+            width: {
+              bsonType: 'number'
+            },
+            thickness: {
+              bsonType: 'number'
+            },
+          }
+        },
+        connectionStandards: {
+          bsonType: 'array',
+          items: {
+            bsonType: 'string',
+          },
+          uniqueItems: true
+        }
+      }
+    }
+  }
+});
+
+// виконувати в БД admin
+use('admin');
+
+db.grantRolesToUser(
+  'admin',
+  ['dbAdminAnyDatabase']
+);
+
+use('admin');
+
+db.grantRolesToUser(
+  'admin',
+  [{role: 'dbAdminAnyDatabase', db: 'firstDb'}]
+);
