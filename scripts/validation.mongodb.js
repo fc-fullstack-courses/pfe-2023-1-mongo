@@ -171,3 +171,55 @@ db.cars.insertOne({
     У габаритів мають бути всі дані всередині
     Ціна не може бути негативною
 */
+
+db.createCollection('phones', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['name', 'price', 'isUsed'],
+      properties: {
+        name: {
+          bsonType: 'string'
+        },
+        price: {
+          bsonType: 'number',
+          minimum: 0
+        },
+        color: {
+          bsonType: 'string'
+        },
+        isUsed : {
+          bsonType: 'bool'
+        },
+        dimensions: {
+          bsonType: 'object',
+          required: ['height', 'width', 'thickness'],
+          properties: {
+            height: {
+              bsonType: 'number'
+            },
+            width: {
+              bsonType: 'number'
+            },
+            thickness: {
+              bsonType: 'number'
+            },
+          }
+        },
+        connectionStandards: {
+          bsonType: 'array',
+          items: {
+            bsonType: 'string',
+          },
+          uniqueItems: true
+        }
+      }
+    }
+  }
+});
+
+db.phones.insertOne({
+  name: 'Test 2',
+  price: -123545,
+  isUsed: false
+});
