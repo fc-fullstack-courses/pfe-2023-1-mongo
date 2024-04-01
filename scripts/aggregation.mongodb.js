@@ -168,6 +168,35 @@ db.products.aggregate([
   }
 ]);
 
+db.inventory.aggregate([
+  {
+    $group: {
+      _id: '$status',
+      averageQuantity : { $avg: '$qty'}
+    }
+  }
+]);
+
+// GROUP BY status, size.uom
+db.inventory.aggregate([
+  {
+    $group: {
+      _id: { status: "$status", unit: "$size.uom" },
+      averageQuantity : { $avg: '$qty'}
+    }
+  }
+]);
+
+// без группування
+db.inventory.aggregate([
+  {
+    $group: {
+      _id: null,
+      averageQuantity : { $avg: '$qty'}
+    }
+  }
+]);
+
 /*
   $match - фільтраційние етап у агрегації
   $sort - сортувальний
