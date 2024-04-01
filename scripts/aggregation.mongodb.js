@@ -125,19 +125,19 @@ db.products.aggregate([
       from: 'manufacturers', // назва коллекції, яку приєднуємо
       localField: 'manufacturerId', // поле з products
       foreignField: '_id', // назва поля з поєднувальної таблиці
-      as: 'manufacturer' // назва поля, в яке буде покладено масив з результатами JOIN-у
-    }
+      as: 'manufacturer', // назва поля, в яке буде покладено масив з результатами JOIN-у
+    },
   },
-  // перетворює масив на конкретне поле. Якщо у масиві більше 1 елементу то зробить 
-  // для кожного елементу окремий запис у результаті 
+  // перетворює масив на конкретне поле. Якщо у масиві більше 1 елементу то зробить
+  // для кожного елементу окремий запис у результаті
   {
-    $unwind: "$manufacturer"
+    $unwind: '$manufacturer',
   },
   // прибирає поле або набор полів
   {
-    $unset: 'manufacturerId'
+    $unset: 'manufacturerId',
     // $unset: ['manufacturerId', 'price']
-  }
+  },
 ]);
 
 // порахувати кількість товарів у кожного виробника і дані про виробника
@@ -147,44 +147,44 @@ db.products.aggregate([
       from: 'manufacturers',
       localField: 'manufacturerId',
       foreignField: '_id',
-      as: 'manufacturer'
-    }
+      as: 'manufacturer',
+    },
   },
   {
-    $unwind: "$manufacturer"
+    $unwind: '$manufacturer',
   },
   // аналог GROUP BY x
   {
     $group: {
       _id: '$manufacturer.name', // те, по чому буде групуватися (х)
       // додаткові поля які використовують агрегаті акомулятори
-      productsNumber: { 
-        $count: {} // з монги 5 версіі і вище
+      productsNumber: {
+        $count: {}, // з монги 5 версіі і вище
       },
       productsNumberOld: {
-        $sum: 1
-      }
-    }
-  }
+        $sum: 1,
+      },
+    },
+  },
 ]);
 
 db.inventory.aggregate([
   {
     $group: {
       _id: '$status',
-      averageQuantity : { $avg: '$qty'}
-    }
-  }
+      averageQuantity: { $avg: '$qty' },
+    },
+  },
 ]);
 
 // GROUP BY status, size.uom
 db.inventory.aggregate([
   {
     $group: {
-      _id: { status: "$status", unit: "$size.uom" },
-      averageQuantity : { $avg: '$qty'}
-    }
-  }
+      _id: { status: '$status', unit: '$size.uom' },
+      averageQuantity: { $avg: '$qty' },
+    },
+  },
 ]);
 
 // без группування
@@ -192,9 +192,9 @@ db.inventory.aggregate([
   {
     $group: {
       _id: null,
-      averageQuantity : { $avg: '$qty'}
-    }
-  }
+      averageQuantity: { $avg: '$qty' },
+    },
+  },
 ]);
 
 /*
@@ -212,3 +212,163 @@ db.inventory.aggregate([
     - всіх компаній
     - * конкретної компанії
 */
+
+db.createCollection('companies', {
+  validator: {
+    $jsonSchema: {
+      title: 'companies obj validation',
+      bsonType: 'object',
+      description: 'companies must be obj with name',
+      required: ['name'],
+      properties: {
+        name: {
+          bsonType: 'string',
+          description: 'name must be a string',
+          minLength: 2,
+        },
+      },
+    },
+  },
+});
+
+db.createCollection('employees', {
+  validator: {
+    $jsonSchema: {
+      title: 'employees obj validation',
+      bsonType: 'object',
+      description: 'employees must be obj with name, companyId',
+      required: ['name', 'companyId'],
+      properties: {
+        name: {
+          bsonType: 'string',
+          description: 'name must be a string',
+          minLength: 2,
+        },
+        companyId: {
+          bsonType: 'objectId',
+          description: 'companyId must be a objectId',
+        },
+      },
+    },
+  },
+});
+
+db.companies.insertMany([
+  {
+    name: 'Company1',
+  },
+  {
+    name: 'Company2',
+  },
+  {
+    name: 'Company3',
+  },
+]);
+
+db.employees.insertMany([
+  {
+    name: 'Employee1',
+    companyId: new ObjectId('660ace0799f8a1fec328b3c7'),
+  },
+  {
+    name: 'Employee2',
+    companyId: new ObjectId('660ace0799f8a1fec328b3c7'),
+  },
+  {
+    name: 'Employee3',
+    companyId: new ObjectId('660ace0799f8a1fec328b3c8'),
+  },
+  {
+    name: 'Employee4',
+    companyId: new ObjectId('660ace0799f8a1fec328b3c8'),
+  },
+  {
+    name: 'Employee5',
+    companyId: new ObjectId('660ace0799f8a1fec328b3c8'),
+  },
+  {
+    name: 'Employee6',
+    companyId: new ObjectId('660ace0799f8a1fec328b3c9'),
+  },
+]);
+
+// отримати всі компанії з даними про їх працівників
+db.companies.aggregate([
+  {
+    $lookup: {
+      from: 'employees',
+      localField: '_id',
+      foreignField: 'companyId',
+      as: 'employee',
+    },
+  },
+  { $unset: ['employee.companyId'] },
+  {
+    $addFields: {
+      amountOfEmployees: { $size: '$employee' },
+    },
+  },
+]);
+
+db.companies.aggregate([
+  {
+    $lookup: {
+      from: 'employees',
+      localField: '_id',
+      foreignField: 'companyId',
+      as: 'employee',
+    },
+  },
+  { $unset: ['employee.companyId'] },
+  {
+    $unwind: '$employee'
+  },
+]);
+
+
+/*
+  порахувати всіх працівників: 
+*/
+// - всіх компаній
+db.companies.aggregate([
+  {
+    $lookup: {
+      from: 'employees',
+      localField: '_id',
+      foreignField: 'companyId',
+      as: 'employee',
+    },
+  },
+  { $unwind: '$employee' },
+  {
+    $group: {
+      _id: '$name',
+      amountOfEmployees: {
+        $count: {},
+      },
+    },
+  },
+]);
+//   - * конкретної компанії
+db.companies.aggregate([
+  {
+    $match: { _id: new ObjectId('6609c7e69d398c7f34ffd24e') },
+  },
+  {
+    $lookup: {
+      from: 'employees',
+      localField: '_id',
+      foreignField: 'companyId',
+      as: 'employee',
+    },
+  },
+  { $unwind: '$employee' },
+  {
+    $group: {
+      _id: '$name',
+      amountOfEmployees: {
+        $count: {},
+      },
+    },
+  },
+]);
