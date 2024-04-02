@@ -30,7 +30,9 @@ module.exports.getManufacturer = async (req, res, next) => {
 
 module.exports.getManufacturers = async (req, res, next) => {
   try {
-    const manufacturers = await Manufacturer.find();
+    const manufacturers = await Manufacturer.find().populate('products');
+
+    // const manufacturers = await Manufacturer.find().populate({path : 'products'});
 
     res.status(200).send({ data: manufacturers });
   } catch (error) {
