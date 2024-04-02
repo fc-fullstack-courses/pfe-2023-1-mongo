@@ -18,9 +18,11 @@ const manufacturerSchema = new Schema({
     type: Number,
     min: 0,
     max: 9999999,
+    default: 75000
   },
   isSubsidiary: {
     type: Boolean,
+    default: false
   },
   creationDate: {
     type: Date,
