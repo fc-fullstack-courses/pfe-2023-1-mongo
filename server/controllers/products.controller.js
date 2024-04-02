@@ -27,7 +27,7 @@ module.exports.createProduct = async (req, res, next) => {
 module.exports.getProducts = async (req, res, next) => {
   try {
     
-    const products = await Product.find().populate('manufacturer');
+    const products = await Product.find().populate('manufacturer').select('-__v');
 
     res.status(200).send({data: products});
   } catch (error) {

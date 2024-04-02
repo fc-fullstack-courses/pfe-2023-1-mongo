@@ -30,9 +30,19 @@ module.exports.getManufacturer = async (req, res, next) => {
 
 module.exports.getManufacturers = async (req, res, next) => {
   try {
-    const manufacturers = await Manufacturer.find().populate('products');
+    const manufacturers = await Manufacturer.find().populate(
+      'products',
+      'name price quantity -_id'
+    ).select('-__v');
 
-    // const manufacturers = await Manufacturer.find().populate({path : 'products'});
+    /*
+    const manufacturers = await Manufacturer.find().populate({
+      path: 'products',
+      select: 'name price quantity -_id',
+      select: ['name', 'price', 'quantity', '-id'],
+      select: {name: 1, price: 1, quantity: 1, id: 0}
+    });
+    */
 
     res.status(200).send({ data: manufacturers });
   } catch (error) {
