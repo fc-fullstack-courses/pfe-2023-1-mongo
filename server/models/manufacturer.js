@@ -6,8 +6,11 @@ const EMAIL_VALIDATION_SCHEMA = yup.string().required().email();
 const manufacturerSchema = new Schema({
   name: {
     type: String,
-    required: true,
-    match: /[A-Za-z0-9. ]+/,
+    required: [true, 'Name field is required for manufacturer and must string'],
+    match: [
+      /[A-Za-z0-9. ]+/,
+      'Manufacturer name must only contain English letters, numbers and dot',
+    ],
     unique: true,
   },
   // name: Schema.Types.String
@@ -37,6 +40,10 @@ const manufacturerSchema = new Schema({
       validate: {
         validator: async (emailValue) =>
           EMAIL_VALIDATION_SCHEMA.isValid(emailValue),
+        message: (props) => {
+          // console.log(props);
+          return `${props.value} is not a valid email`;
+        },
       },
     },
   },
