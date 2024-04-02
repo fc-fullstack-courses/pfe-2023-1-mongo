@@ -47,6 +47,8 @@ const manufacturerSchema = new Schema({
       },
     },
   },
+}, {
+  timestamps: true
 });
 
 const Manufacturer = model('Manufacturer', manufacturerSchema);
