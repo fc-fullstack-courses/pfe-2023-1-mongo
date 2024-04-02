@@ -4,7 +4,8 @@ const manufacturerSchema = new Schema({
   name: {
     type: String,
     required: true,
-    match: /[A-Za-z0-9. ]+/
+    match: /[A-Za-z0-9. ]+/,
+    unique: true
   },
   // name: Schema.Types.String
   estimatedValue: {
