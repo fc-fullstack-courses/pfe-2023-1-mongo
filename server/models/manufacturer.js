@@ -49,6 +49,7 @@ const manufacturerSchema = new Schema({
       },
     },
   },
+  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }]
 }, {
   timestamps: true
 });
