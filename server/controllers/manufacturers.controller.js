@@ -1,10 +1,10 @@
-const { Manufacturer } = require('../models');
+const ManufacturersService = require('../services/manufacturers.service');
 
 module.exports.createManufacturer = async (req, res, next) => {
   try {
     const { body } = req;
 
-    const manufacturer = await Manufacturer.create(body);
+    const manufacturer = await ManufacturersService.createManufacturer(body);
 
     res.status(201).send({ data: manufacturer });
   } catch (error) {
@@ -18,9 +18,9 @@ module.exports.getManufacturer = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    // const manufacturer = await Manufacturer.findById(manufacturerId);
-
-    const manufacturer = await Manufacturer.findOne({ _id: manufacturerId });
+    const manufacturer = await ManufacturersService.findManufacturer({
+      _id: manufacturerId,
+    });
 
     res.status(200).send({ data: manufacturer });
   } catch (error) {
@@ -30,10 +30,15 @@ module.exports.getManufacturer = async (req, res, next) => {
 
 module.exports.getManufacturers = async (req, res, next) => {
   try {
-    const manufacturers = await Manufacturer.find().populate(
-      'products',
-      'name price quantity -_id'
-    ).select('-__v');
+    const manufacturers = await ManufacturersService.findManufacturers(
+      {},
+      {
+        populateOptions: {
+          populateField: 'products',
+          populateSelect: 'name price quantity -_id',
+        },
+      }
+    );
 
     /*
     const manufacturers = await Manufacturer.find().populate({
@@ -57,10 +62,9 @@ module.exports.updateManufacturer = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const updatedManufacturer = await Manufacturer.findByIdAndUpdate(
-      manufacturerId,
-      body,
-      { new: true }
+    const updatedManufacturer = await ManufacturersService.updateManufacturer(
+      { _id: manufacturerId },
+      body
     );
 
     res.status(200).send({ data: updatedManufacturer });
@@ -75,9 +79,9 @@ module.exports.deleteManufacturer = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const deletedManufacturer = await Manufacturer.findByIdAndDelete(
-      manufacturerId
-    );
+    const deletedManufacturer = await ManufacturersService.deleteManufacturer({
+      _id: manufacturerId,
+    });
 
     res.status(200).send({ data: deletedManufacturer });
   } catch (error) {
