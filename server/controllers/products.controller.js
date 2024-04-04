@@ -8,13 +8,13 @@ module.exports.createProduct = async (req, res, next) => {
     // 1. Створити продукт
     const product = await Product.create({
       ...body,
-      manufacturer: manufacturer._id
+      manufacturer: manufacturer._id,
     });
 
     // 2. доповнити масив продуктів у виробника конкретним записом про новий продукт
 
     // додає айді до масиву
-    await manufacturer.updateOne({ $push: { products: product._id }});
+    await manufacturer.updateOne({ $push: { products: product._id } });
 
     // додає айді до масиву якщо тай його немає
     // await manufacturer.updateOne({ $addToSet: { products: product._id }});
@@ -39,8 +39,11 @@ module.exports.getAllProducts = async (req, res, next) => {
 
 module.exports.getProducts = async (req, res, next) => {
   try {
-    
-    const products = await Product.find().populate('manufacturer').select('-__v');
+    const { manufacturer } = req;
+
+    const products = await Product.find({ manufacturer: manufacturer._id })
+      .populate('manufacturer')
+      .select('-__v');
 
     res.status(200).send({ data: products });
   } catch (error) {
@@ -112,4 +115,28 @@ module.exports.updateProduct = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
+
+module.exports.deleteProduct = async (req, res, next) => {
+  try {
+    const {
+      params: { productId },
+    } = req;
+
+    // 1. видалити продукт
+    const product = await Product.findByIdAndDelete(productId);
+
+    if(!product) {
+      throw createHttpError(404, 'Product not found');
+    }
+
+    // 2. видалити id товара у виробника
+    await Manufacturer.updateOne( { _id: product.manufacturer },{
+      $pull: { products: product._id }
+    });
+
+    res.send({data: product});
+  } catch (error) {
+    next(error);
+  }
+};

@@ -8,5 +8,7 @@ rootRouter.get('/products', ProductsController.getAllProducts);
 
 rootRouter.route('/products/:productId')
   .get(ProductsController.getProduct)
-  .put(ProductsController.updateProduct);
+  .put(ProductsController.updateProduct)
+  .delete(ProductsController.deleteProduct);
+
 module.exports = rootRouter;
