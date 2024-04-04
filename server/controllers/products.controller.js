@@ -1,23 +1,12 @@
 const createHttpError = require('http-errors');
 const { Product, Manufacturer } = require('../models');
+const ProductsService = require('../services/products.service');
 
 module.exports.createProduct = async (req, res, next) => {
   try {
     const { body, manufacturer } = req;
 
-    // 1. Створити продукт
-    const product = await Product.create({
-      ...body,
-      manufacturer: manufacturer._id,
-    });
-
-    // 2. доповнити масив продуктів у виробника конкретним записом про новий продукт
-
-    // додає айді до масиву
-    await manufacturer.updateOne({ $push: { products: product._id } });
-
-    // додає айді до масиву якщо тай його немає
-    // await manufacturer.updateOne({ $addToSet: { products: product._id }});
+    const product = await ProductsService.createProduct(body, manufacturer);
 
     res.status(201).send({ data: product });
   } catch (error) {
@@ -27,9 +16,16 @@ module.exports.createProduct = async (req, res, next) => {
 
 module.exports.getAllProducts = async (req, res, next) => {
   try {
-    const products = await Product.find()
-      .populate('manufacturer')
-      .select('-__v');
+    const products = await ProductsService.findProducts(
+      {},
+      {
+        selectOptions: '-__v',
+        populateOptions: {
+          populateField: 'manufacturer',
+          populateSelect: '-__v -products',
+        },
+      }
+    );
 
     res.status(200).send({ data: products });
   } catch (error) {
@@ -41,9 +37,10 @@ module.exports.getProducts = async (req, res, next) => {
   try {
     const { manufacturer } = req;
 
-    const products = await Product.find({ manufacturer: manufacturer._id })
-      .populate('manufacturer')
-      .select('-__v');
+    const products = await ProductsService.findProducts(
+      { manufacturer: manufacturer._id },
+      { populateOptions: { shouldPopulate: false } }
+    );
 
     res.status(200).send({ data: products });
   } catch (error) {
@@ -57,9 +54,15 @@ module.exports.getProduct = async (req, res, next) => {
       params: { productId },
     } = req;
 
-    const product = await Product.findById(productId)
-      .populate({ path: 'manufacturer', select: ['-products', '-__v'] })
-      .select('-__v');
+    const product = await ProductsService.findProduct(
+      { _id: productId },
+      {
+        populateOptions: {
+          populateField: 'manufacturer',
+          populateSelect: ['-products', '-__v'],
+        },
+      }
+    );
 
     if (!product) {
       throw createHttpError(404, 'Product not found');
@@ -78,38 +81,7 @@ module.exports.updateProduct = async (req, res, next) => {
       body,
     } = req;
 
-    // 1. якщо ми намагаємося оновити виробника то маємо перевірити. чи він існує
-    if (body.manufacturer) {
-      const manufacturer = await Manufacturer.findById(body.manufacturer);
-
-      if (!manufacturer) {
-        throw createHttpError(404, 'Manufacturer not found');
-      }
-    }
-
-    // 2. оновити продукт
-    let product = await Product.findByIdAndUpdate(productId, body);
-
-    if (!product) {
-      throw createHttpError(404, 'Product not found');
-    }
-
-    // 3. якщо ми оновили виробника то треба
-    if (body.manufacturer) {
-      // 3.1 видалити id товара у старого виробника
-      await Manufacturer.updateOne( { _id: product.manufacturer },{
-        $pull: { products: product._id }
-      });
-
-      // 3.2 додати новому виробнику id товара
-      await Manufacturer.updateOne(
-        { _id: body.manufacturer },
-        { $addToSet: { products: product._id } }
-      );
-    }
-
-    // 4. повернути оновлені дані про продукт
-    product = await Product.findById(productId).select('-__v');
+    const product = await ProductsService.updateProduct({_id: productId}, body);
 
     res.send({ data: product });
   } catch (error) {
@@ -123,19 +95,9 @@ module.exports.deleteProduct = async (req, res, next) => {
       params: { productId },
     } = req;
 
-    // 1. видалити продукт
-    const product = await Product.findByIdAndDelete(productId);
+    const product = await ProductsService.deleteProduct({_id: productId});
 
-    if(!product) {
-      throw createHttpError(404, 'Product not found');
-    }
-
-    // 2. видалити id товара у виробника
-    await Manufacturer.updateOne( { _id: product.manufacturer },{
-      $pull: { products: product._id }
-    });
-
-    res.send({data: product});
+    res.send({ data: product });
   } catch (error) {
     next(error);
   }
