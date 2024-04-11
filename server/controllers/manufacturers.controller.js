@@ -4,7 +4,7 @@ module.exports.createManufacturer = async (req, res, next) => {
   try {
     const { body } = req;
 
-    const manufacturer = await ManufacturersService.createManufacturer(body);
+    const manufacturer = await ManufacturersService.create(body);
 
     res.status(201).send({ data: manufacturer });
   } catch (error) {
@@ -18,7 +18,7 @@ module.exports.getManufacturer = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const manufacturer = await ManufacturersService.findManufacturer({
+    const manufacturer = await ManufacturersService.findOne({
       _id: manufacturerId,
     });
 
@@ -30,7 +30,7 @@ module.exports.getManufacturer = async (req, res, next) => {
 
 module.exports.getManufacturers = async (req, res, next) => {
   try {
-    const manufacturers = await ManufacturersService.findManufacturers(
+    const manufacturers = await ManufacturersService.findAll(
       {},
       {
         populateOptions: {
@@ -62,7 +62,7 @@ module.exports.updateManufacturer = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const updatedManufacturer = await ManufacturersService.updateManufacturer(
+    const updatedManufacturer = await ManufacturersService.updateOne(
       { _id: manufacturerId },
       body
     );
@@ -79,7 +79,7 @@ module.exports.deleteManufacturer = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const deletedManufacturer = await ManufacturersService.deleteManufacturer({
+    const deletedManufacturer = await ManufacturersService.deleteOne({
       _id: manufacturerId,
     });
 

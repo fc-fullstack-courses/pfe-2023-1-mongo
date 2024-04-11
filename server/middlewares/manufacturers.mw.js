@@ -7,7 +7,7 @@ module.exports.findManufacturerById = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const manufacturer = await ManufacturersService.findManufacturer({_id: manufacturerId});
+    const manufacturer = await ManufacturersService.findOne({_id: manufacturerId});
 
     if(!manufacturer) {
       throw createError(404, 'Manufacturer not found');

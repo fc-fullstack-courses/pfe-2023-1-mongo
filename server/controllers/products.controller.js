@@ -5,7 +5,7 @@ module.exports.createProduct = async (req, res, next) => {
   try {
     const { body, manufacturer } = req;
 
-    const product = await ProductsService.createProduct(body, manufacturer);
+    const product = await ProductsService.create(body, manufacturer);
 
     res.status(201).send({ data: product });
   } catch (error) {
@@ -15,7 +15,7 @@ module.exports.createProduct = async (req, res, next) => {
 
 module.exports.getAllProducts = async (req, res, next) => {
   try {
-    const products = await ProductsService.findProducts(
+    const products = await ProductsService.findAll(
       {},
       {
         selectOptions: '-__v',
@@ -36,7 +36,7 @@ module.exports.getProducts = async (req, res, next) => {
   try {
     const { manufacturer } = req;
 
-    const products = await ProductsService.findProducts(
+    const products = await ProductsService.findAll(
       { manufacturer: manufacturer._id },
       { populateOptions: { shouldPopulate: false } }
     );
@@ -53,7 +53,7 @@ module.exports.getProduct = async (req, res, next) => {
       params: { productId },
     } = req;
 
-    const product = await ProductsService.findProduct(
+    const product = await ProductsService.findOne(
       { _id: productId },
       {
         populateOptions: {
@@ -80,7 +80,7 @@ module.exports.updateProduct = async (req, res, next) => {
       body,
     } = req;
 
-    const product = await ProductsService.updateProduct(
+    const product = await ProductsService.updateOne(
       { _id: productId },
       body
     );
@@ -97,7 +97,7 @@ module.exports.deleteProduct = async (req, res, next) => {
       params: { productId },
     } = req;
 
-    const product = await ProductsService.deleteProduct({ _id: productId });
+    const product = await ProductsService.deleteOne({ _id: productId });
 
     res.send({ data: product });
   } catch (error) {

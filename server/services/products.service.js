@@ -2,7 +2,7 @@ const createHttpError = require('http-errors');
 const { Product, Manufacturer } = require('../models');
 
 class ProductsService {
-  static async createProduct(productData, manufacturer) {
+  static async create(productData, manufacturer) {
     const { ManufacturersService } = ProductsService.services;
 
     // 1. Створити продукт
@@ -25,7 +25,7 @@ class ProductsService {
     return product;
   }
 
-  static async findProducts(
+  static async findAll(
     filter = {},
     options = {
       selectOptions: '-__v',
@@ -49,7 +49,7 @@ class ProductsService {
     return products;
   }
 
-  static async findProduct(
+  static async findOne(
     filter = {},
     options = {
       selectOptions: '-__v',
@@ -77,7 +77,7 @@ class ProductsService {
     return product;
   }
 
-  static async updateProduct(filter, updateData) {
+  static async updateOne(filter, updateData) {
     const { ManufacturersService } = ProductsService.services;
 
     // 1. якщо ми намагаємося оновити виробника то маємо перевірити. чи він існує
@@ -119,7 +119,7 @@ class ProductsService {
     return product;
   }
 
-  static async deleteProduct(filter) {
+  static async deleteOne(filter) {
     const { ManufacturersService } = ProductsService.services;
     // 1. видалити продукт
     const product = await Product.findOneAndDelete(filter);

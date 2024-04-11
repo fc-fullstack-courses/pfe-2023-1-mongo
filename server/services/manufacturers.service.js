@@ -2,13 +2,13 @@ const createHttpError = require('http-errors');
 const { Manufacturer } = require('../models');
 
 class ManufacturersService {
-  static async createManufacturer(manufacturerData) {
+  static async create(manufacturerData) {
     const manufacturer = await Manufacturer.create(manufacturerData);
 
     return manufacturer;
   }
 
-  static async findManufacturers(
+  static async findAll(
     filter = {},
     options = {
       selectOptions: '-__v',
@@ -31,7 +31,7 @@ class ManufacturersService {
 
     return manufacturers;
   }
-  static async findManufacturer(
+  static async findOne(
     filter = {},
     options = {
       selectOptions: '-__v',
@@ -55,7 +55,7 @@ class ManufacturersService {
     return manufacturer;
   }
 
-  static async updateManufacturer(filter, updateData) {
+  static async updateOne(filter, updateData) {
 
     const manufacturer = await Manufacturer.findOneAndUpdate(
       filter,
@@ -70,7 +70,7 @@ class ManufacturersService {
     return manufacturer;
   }
 
-  static async deleteManufacturer(filter) {
+  static async deleteOne(filter) {
     const manufacturer = await Manufacturer.findOneAndDelete(
       filter
     );
