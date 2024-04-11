@@ -81,6 +81,20 @@ class ManufacturersService {
 
     return manufacturer;
   }
+
+  static async addProductToManufacturer (manufacturerId, productId) {
+    await Manufacturer.updateOne(
+      { _id: manufacturerId },
+      { $addToSet: { products: productId } }
+    );
+  }
+
+  static async removeProductFromManufacturer (manufacturerId, productId) {
+    await Manufacturer.updateOne(
+      { _id: manufacturerId },
+      { $pull: { products: productId } }
+    );
+  }
 }
 
 module.exports = ManufacturersService;

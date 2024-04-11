@@ -3,6 +3,8 @@ const { Product, Manufacturer } = require('../models');
 
 class ProductsService {
   static async createProduct(productData, manufacturer) {
+    const { ManufacturersService } = ProductsService.services;
+
     // 1. Створити продукт
     const product = await Product.create({
       ...productData,
@@ -12,7 +14,10 @@ class ProductsService {
     // 2. доповнити масив продуктів у виробника конкретним записом про новий продукт
 
     // додає айді до масиву
-    await manufacturer.updateOne({ $push: { products: product._id } });
+    await ManufacturersService.addProductToManufacturer(
+      manufacturer._id,
+      product._id
+    );
 
     // додає айді до масиву якщо тай його немає
     // await manufacturer.updateOne({ $addToSet: { products: product._id }});
@@ -54,7 +59,6 @@ class ProductsService {
       // },
     }
   ) {
-
     const { selectOptions, populateOptions } = options;
 
     let product;
@@ -73,7 +77,9 @@ class ProductsService {
     return product;
   }
 
-  static async updateProduct (filter, updateData) {
+  static async updateProduct(filter, updateData) {
+    const { ManufacturersService } = ProductsService.services;
+
     // 1. якщо ми намагаємося оновити виробника то маємо перевірити. чи він існує
     if (updateData.manufacturer) {
       const manufacturer = await Manufacturer.findById(updateData.manufacturer);
@@ -93,28 +99,27 @@ class ProductsService {
     // 3. якщо ми оновили виробника то треба
     if (updateData.manufacturer) {
       // 3.1 видалити id товара у старого виробника
-      await Manufacturer.updateOne(
-        { _id: product.manufacturer },
-        {
-          $pull: { products: product._id },
-        }
+      await ManufacturersService.removeProductFromManufacturer(
+        product.manufacturer,
+        product._id
       );
 
       // 3.2 додати новому виробнику id товара
-      await Manufacturer.updateOne(
-        { _id: updateData.manufacturer },
-        { $addToSet: { products: product._id } }
+      await ManufacturersService.addProductToManufacturer(
+        product.manufacturer,
+        product._id
       );
     }
 
     // 4. повернути оновлені дані про продукт
-    product = await ProductsService.findProduct(filter, {selectOptions: '-__v'});
+    product = await ProductsService.findProduct(filter, {
+      selectOptions: '-__v',
+    });
 
     return product;
   }
 
-  static async deleteProduct (filter) {
-
+  static async deleteProduct(filter) {
     // 1. видалити продукт
     const product = await Product.findOneAndDelete(filter);
 
