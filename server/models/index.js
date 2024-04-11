@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Manufacturer = require('./manufacturer');
 const Product = require('./product');
+const Order = require('./order');
 
 async function connectToDb() {
 
@@ -13,5 +14,6 @@ connectToDb().catch(err => console.log(err));
 
 module.exports = {
   Manufacturer,
-  Product
+  Product,
+  Order
 }

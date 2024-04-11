@@ -26,6 +26,7 @@ const productSchema = new Schema(
       ref: 'Manufacturer',
     },
     productImages: [],
+    // orders: [{ type: Schema.Types.ObjectId, ref: 'Order'}]
   },
   {
     timestamps: true,
