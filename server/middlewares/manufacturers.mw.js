@@ -1,5 +1,5 @@
 const createError = require('http-errors');
-const { Manufacturer } = require('../models');
+const { ManufacturersService } = require('../services');
 
 module.exports.findManufacturerById = async (req, res, next) => {
   try {
@@ -7,7 +7,7 @@ module.exports.findManufacturerById = async (req, res, next) => {
       params: { manufacturerId },
     } = req;
 
-    const manufacturer = await Manufacturer.findById(manufacturerId);
+    const manufacturer = await ManufacturersService.findManufacturer({_id: manufacturerId});
 
     if(!manufacturer) {
       throw createError(404, 'Manufacturer not found');

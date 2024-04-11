@@ -120,6 +120,7 @@ class ProductsService {
   }
 
   static async deleteProduct(filter) {
+    const { ManufacturersService } = ProductsService.services;
     // 1. видалити продукт
     const product = await Product.findOneAndDelete(filter);
 
@@ -128,11 +129,9 @@ class ProductsService {
     }
 
     // 2. видалити id товара у виробника
-    await Manufacturer.updateOne(
-      { _id: product.manufacturer },
-      {
-        $pull: { products: product._id },
-      }
+    await ManufacturersService.removeProductFromManufacturer(
+      product.manufacturer,
+      product._id
     );
 
     return product;

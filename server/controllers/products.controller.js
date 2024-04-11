@@ -1,5 +1,4 @@
 const createHttpError = require('http-errors');
-const { Product, Manufacturer } = require('../models');
 const { ProductsService } = require('../services');
 
 module.exports.createProduct = async (req, res, next) => {
