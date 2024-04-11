@@ -1,6 +1,6 @@
 const createHttpError = require('http-errors');
 const { Product, Manufacturer } = require('../models');
-const ProductsService = require('../services/products.service');
+const { ProductsService } = require('../services');
 
 module.exports.createProduct = async (req, res, next) => {
   try {
@@ -81,7 +81,10 @@ module.exports.updateProduct = async (req, res, next) => {
       body,
     } = req;
 
-    const product = await ProductsService.updateProduct({_id: productId}, body);
+    const product = await ProductsService.updateProduct(
+      { _id: productId },
+      body
+    );
 
     res.send({ data: product });
   } catch (error) {
@@ -95,7 +98,7 @@ module.exports.deleteProduct = async (req, res, next) => {
       params: { productId },
     } = req;
 
-    const product = await ProductsService.deleteProduct({_id: productId});
+    const product = await ProductsService.deleteProduct({ _id: productId });
 
     res.send({ data: product });
   } catch (error) {

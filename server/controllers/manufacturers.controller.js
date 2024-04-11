@@ -1,4 +1,4 @@
-const ManufacturersService = require('../services/manufacturers.service');
+const { ManufacturersService } = require('../services');
 
 module.exports.createManufacturer = async (req, res, next) => {
   try {
